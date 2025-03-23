@@ -44,6 +44,7 @@ git clone https://github.com/gochiglog/error_notification.git
 4. **依存コマンドの確認**   
  - `resources/` ディレクトリ内に `.env.sample` というサンプルファイルがあります。これを `.env` という名前でコピーし、中身を編集してください。
 ```bash
+cd error_notification
 cp resources/.env.sample resources/.env
 ```
  - resources/.env を開き、先ほどBotから教えてもらったIDを設定してください。
