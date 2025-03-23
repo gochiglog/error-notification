@@ -39,11 +39,7 @@ git clone https://github.com/gochiglog/error_notification.git
 ```
 2. **ユーザが Bot を友だち追加**
  - ![image](https://github.com/user-attachments/assets/a0eb7f8c-d986-4749-b92d-ad0cc6303224)
- - Bot が「あなたのIDは Uxxxxxx です」というメッセージを返信
-
-3. **依存コマンドの確認**    
-このスクリプトは、HTTPリクエスト送信のために curl を使用します。
-macOS/Linux、あるいはWindowsのGit Bashなら通常は curl が同梱されています。
+ - Bot が「あなたのIDは Uxxxxxx です」というメッセージを返信します（後にこのIDを使用します）
 
 4. **依存コマンドの確認**   
  - `resources/` ディレクトリ内に `.env.sample` というサンプルファイルがあります。これを `.env` という名前でコピーし、中身を編集してください。
@@ -61,22 +57,22 @@ chmod +x bin/wrapper.sh
 ```
 
 6. **テスト実行**  
- - 正常に終わるコマンド（例：echo "Hello"）をラップして実行:
+ - 正常に終わるコマンド（例：echo "Hello"）をラップして実行します。:
 ```bash
 ./error_notification/bin/wrapper.sh echo "Hello"
 ```
- - あえて失敗するコマンド(存在しないディレクトリ参照):
+ - あえて失敗するコマンド(存在しないディレクトリ参照)も試します。:
  ```bash
  ./error_notification/bin/wrapper.sh ls /non_exit_dir
  ```
 
-6. **実際の使用方法** 
-↓のようにし、実行します
+7. **実際の使用方法** 
+ - 6まで正常に実行完了できれば準備完了です。実際使用する際は↓のようにし、実行します。エラー/実行完了通知があなたのLINEbotから届くはずです。
 ```bash
-./error_notification/bin/wrapper.sh [実行したいコマンド(.pyなど)]
+./error_notification/bin/wrapper.sh [実行したいファイル(.pyなど)]
 ```
 
-7. **ディレクトリ構成** 
+8. **ディレクトリ構成** 
 ```pgsql
 error_notification/
 ├─ bin/
