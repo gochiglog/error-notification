@@ -60,11 +60,11 @@ chmod +x bin/wrapper.sh
 6. **テスト実行**  
  - 正常に終わるコマンド（例：echo "Hello"）をラップして実行します。:
 ```bash
-./error_notification/bin/wrapper.sh echo "Hello"
+./bin/wrapper.sh echo "Hello"
 ```
  - あえて失敗するコマンド(存在しないディレクトリ参照)も試します。:
  ```bash
- ./error_notification/bin/wrapper.sh ls /non_exit_dir
+ ./bin/wrapper.sh ls /non_exit_dir
  ```
 
 7. **実際の使用方法** 
