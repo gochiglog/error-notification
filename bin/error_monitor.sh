@@ -68,3 +68,10 @@ echo "Hello, success!"
 # ls /this_directory_should_not_exist  # エラーを発生させる行
 
 echo "=== script end ==="
+
+
+
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"U94a710b03c3a89ffd04b80bbbff9ef4b","errorMsg":"Test error from local"}' \
+  https://ov1l8y4m23.execute-api.ap-northeast-3.amazonaws.com/notifyError
