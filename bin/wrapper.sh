@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
+#
+# wrapper.sh
+# "ユーザーはトークン不要。開発者サーバがPushする" モデル用
+# ------------------------------------------------------------
+# 1) ユーザーが "wrapper.sh python main.py" のようにコマンドを指定
+# 2) wrapper.sh がコマンド成否を判定し、サーバへ結果情報をHTTP POST
+# 3) サーバ(Lambda等)が受け取って、LINEへのPush通知を実行する仕組み
+#
+# ※ .env.sample 例:
+#   NOTIFY_API_URL="https://example.com/notifyError"
+#   USER_ID="Uxxxxxxxxx..."
+
 set -e
 trap 'on_exit' EXIT
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}/.."
 
-# .env読み込み
+# .env 読み込み
 if [ -f "${PROJECT_ROOT}/resources/.env" ]; then
   source "${PROJECT_ROOT}/resources/.env"
 else
@@ -13,43 +25,62 @@ else
   exit 1
 fi
 
+# ログファイル
 LOG_FILE="${PROJECT_ROOT}/logs/error_monitor.log"
 
+#--------------------------------------
+# on_exit: コマンド終了時に呼ばれる
+#--------------------------------------
 on_exit() {
   local exit_code=$?
+  local cmd="$*"
+
+  # 成否判定
   if [ "${exit_code}" -eq 0 ]; then
-    local message="Success: Command '$*' exited with code 0."
+    local message="Success: Command '${cmd}' exited with code 0."
   else
-    local message="Error: Command '$*' failed with code ${exit_code}."
+    local message="Error: Command '${cmd}' failed with code ${exit_code}."
   fi
 
-  # ログ記録
+  # ログに記録
   echo "$(date '+%Y-%m-%d %H:%M:%S') - ${message}" >> "${LOG_FILE}"
 
-  # LINE通知（Messaging API）
-  send_line_message "${message}"
+  # サーバへエラー情報などを送信 (ユーザーID, メッセージ)
+  send_to_server "${USER_ID}" "${message}"
 }
 
-send_line_message() {
-  local text="$1"
-  local line_api_url="https://api.line.me/v2/bot/message/push"
+#--------------------------------------
+# send_to_server: サーバにエラー情報を渡す
+#--------------------------------------
+send_to_server() {
+  local user_id="$1"
+  local info_msg="$2"
+
+  # ユーザの .env に設定されたサーバエンドポイント
+  if [ -z "${NOTIFY_API_URL}" ]; then
+    echo "[ERROR] NOTIFY_API_URL is not set in .env"
+    return
+  fi
+
+  # JSONペイロード
   local payload=$(cat << EOF
 {
-  "to": "${LINE_USER_ID}",
-  "messages": [
-    {
-      "type": "text",
-      "text": "${text}"
-    }
-  ]
+  "userId": "${user_id}",
+  "message": "${info_msg}"
 }
 EOF
 )
-  curl -s -X POST "${line_api_url}" \
-       -H "Content-Type: application/json" \
-       -H "Authorization: Bearer ${LINE_CHANNEL_ACCESS_TOKEN}" \
-       -d "${payload}"
+
+  # HTTP POST
+  curl -s -X POST "${NOTIFY_API_URL}" \
+    -H "Content-Type: application/json" \
+    -d "${payload}"
+
+  # ↑サーバ(開発者管理)側で push 用のトークン等を保持し、
+  #  ユーザの userId宛に LINE Messaging APIを呼び出す想定。
 }
 
-# "$@" でユーザ指定のコマンドを丸ごと実行
+#--------------------------------------
+# "$@" でユーザコマンドを実行
+#--------------------------------------
 "$@"
