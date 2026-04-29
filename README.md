@@ -1,4 +1,4 @@
-# error_notification
+# error-notification
 
 Bashスクリプトを利用して、任意のコマンドやスクリプト（例：Pythonなど）の実行結果が
 「成功したか／失敗したか」をLINEに通知するプロジェクトです。
